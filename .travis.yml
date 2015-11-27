@@ -1,0 +1,24 @@
+language: ruby
+rvm:
+- ruby-2.2.0
+env:
+  global: 
+bundler_args: "--without production"
+script:
+#- RAILS_ENV=test
+#- bundle exec rake db:migrate --trace
+#- bundle exec rake db:test:prepare
+#- bundle exec rake cucumber
+deploy:
+  provider: heroku
+  api_key:
+    secure: h8nmV7qJpuipD/Clg8nUuhlFIno6YY+QjanPiZ/9C9QKaR3M7MC0E+dBB80v53fDS3SHjJ6MC0LM9AnWEdH/n9BsKlMf93BFKDYsClwmQxLVkZ1fNmDzHWNApLoDMJKTpCPDU5mGcEPr4Un1cGVH0yarH7Y/VsGJz4nzGS9MhFYGZKQTyWb6Xv6nkTW7Brli3fMGYS875TZTUiVRRNacFS+iAyDklo9qfQ8mLa0sJ0KT0Ow7iK3TyV2SYYS5kpO8V8W1y6Jy+LDZSgwSeH4hpJauHd6JDawGuO+B8JbDB1IIN8eU+VbWFobhRFcjM+MINb6e6+S9oQ0gcQarvudz6b/NORhycJZAyYrPfJtmjZ5bTjN9qUiTGevqAgTTVMr4CKxfKBC7P+cI2zDQyCTCJVdHFe8iJxyYnhheNrjkwb3a8O715q9nt2ZMG6b7g/jyek53OejYY10kiSwElVkjLENECjLiUYWrpvvVD6wC8tw9VYbbwsAFCuLbaJBuEgvqywWSRo4lE7z07wtyiC+yZ68IjF+W11smEDjzsIVn9pA+98M+grYN6NKoP/Mb3Wo2yZolxB+KuXqtBPjLxscTN0SYlyrubelqdxgmYs1OGjiQgh9j4JgjmaTsV36i2dEy5h/LOED4UBkMByHYO9AdRrS2UDCtqT0p+P5QFogvJ2c=
+  app: terciar-cubalab
+  on:
+    repo: matiasmasca/cubaRendicionLaboratorio
+    all_branches: true
+  run:
+  #- rake db:drop
+  #- rake db:schema:load --trace
+  #- rake db:seed
+  - restart
