@@ -3,22 +3,10 @@ rvm:
 - ruby-2.2.0
 env:
   global: 
-#bundler_args: "--without production"
-#script:
-#- RAILS_ENV=test
-#- bundle exec rake db:migrate --trace
-#- bundle exec rake db:test:prepare
-#- bundle exec rake cucumber
 deploy:
   provider: heroku
   api_key:
-    secure: h8nmV7qJpuipD/Clg8nUuhlFIno6YY+QjanPiZ/9C9QKaR3M7MC0E+dBB80v53fDS3SHjJ6MC0LM9AnWEdH/n9BsKlMf93BFKDYsClwmQxLVkZ1fNmDzHWNApLoDMJKTpCPDU5mGcEPr4Un1cGVH0yarH7Y/VsGJz4nzGS9MhFYGZKQTyWb6Xv6nkTW7Brli3fMGYS875TZTUiVRRNacFS+iAyDklo9qfQ8mLa0sJ0KT0Ow7iK3TyV2SYYS5kpO8V8W1y6Jy+LDZSgwSeH4hpJauHd6JDawGuO+B8JbDB1IIN8eU+VbWFobhRFcjM+MINb6e6+S9oQ0gcQarvudz6b/NORhycJZAyYrPfJtmjZ5bTjN9qUiTGevqAgTTVMr4CKxfKBC7P+cI2zDQyCTCJVdHFe8iJxyYnhheNrjkwb3a8O715q9nt2ZMG6b7g/jyek53OejYY10kiSwElVkjLENECjLiUYWrpvvVD6wC8tw9VYbbwsAFCuLbaJBuEgvqywWSRo4lE7z07wtyiC+yZ68IjF+W11smEDjzsIVn9pA+98M+grYN6NKoP/Mb3Wo2yZolxB+KuXqtBPjLxscTN0SYlyrubelqdxgmYs1OGjiQgh9j4JgjmaTsV36i2dEy5h/LOED4UBkMByHYO9AdRrS2UDCtqT0p+P5QFogvJ2c=
+    secure: TuKH/dqcMP2mNar3TxQmtvNZJ37vCt2niffwfmUUt4qFVz+NW4yiDzX5Egj0qPwFyIZYqSEkz9frrmXV9Yodd0yCLL/PPS8dbGGlPUT3r2eNFW4VsAmOJLEFlS44DUKfAANrPFLsu5m/drrq0P9xo0mxupqfWPG30n8rX8wGZkEuNoxQ5EgelmcEDmrY4rp9/2ptcNADKDh1KgXpsMefeOrNXmRKjYEXQgJggHx67Z+zROSTUQnhIJmMWD7jX9mWvsHrYkIs2ulIc8sSB8KDHeHbhm/E1xRW8jvorAZP/8vydItMwZT8fVmku1cmX+wytv2uWCbHChQdxI9k4QkL52h/YxcFX03MuyO5/Tmcb5Xtp6Iw5jrg/lDhKMtLYwbcjL+ZHZxHJBdJ59kNelh3F/U91zQG9yJjyPxYt2wtZsVS8kHoU0B3tyVNyrmcZs88VM8ubCXkax7YZMTCc9Aj6LlNFgIkCQEKHSic0gP5D7dxcrszewaImXPMZoxLq31ZGhpUCecflpZHP+bC8x/veAudOuUeQTAS37goEkBFm98gweI2ZqrVhwmVs8w6hjli0Ad3i8NOwm+r0/lLaF3n8L2A5lJkq5jv5+4nmbJx1hyRLBfikKVIqY+A9PP8C3moiDdcZqQua++ryMPrsAN6PCw/iMiiOrxRFYZfRMCuDxk=
   app: terciar-cubalab
   on:
     repo: matiasmasca/cubaRendicionLaboratorio
-    all_branches: true
-  run:
-  #- rake db:drop
-  #- rake db:schema:load --trace
-  #- rake db:seed
-  - restart
