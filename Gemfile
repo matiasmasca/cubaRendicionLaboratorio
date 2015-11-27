@@ -4,3 +4,5 @@ ruby '2.2.0' #Versión de Ruby.
 
 # Microframework web.
 gem 'cuba'
+
+gem "rake"

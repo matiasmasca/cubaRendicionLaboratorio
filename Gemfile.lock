@@ -4,9 +4,11 @@ GEM
     cuba (3.4.0)
       rack
     rack (1.6.4)
+    rake (10.4.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   cuba
+  rake
