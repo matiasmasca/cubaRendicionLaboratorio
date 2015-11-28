@@ -1,0 +1,11 @@
+scss:
+  enabled: false
+
+ruby:
+  config_file: .ruby-style.yml
+
+javascript:
+  ignore_file: .javascript_ignore
+
+# Para que falle el codigo si no se cumple algun estilo
+#fail_on_violations: true  

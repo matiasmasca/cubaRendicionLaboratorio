@@ -12,7 +12,7 @@ Toda contribución (sugerencias de cambio), consejo, critica constructiva, consu
 
 **Servicios Externos.**
 -----------------------
-<< TO-DO: agregar los badges al readme >>
+[![Build Status](https://travis-ci.org/matiasmasca/cubaRendicionLaboratorio.svg)](https://travis-ci.org/matiasmasca/cubaRendicionLaboratorio)
 
 Licencia:
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/MIT)
