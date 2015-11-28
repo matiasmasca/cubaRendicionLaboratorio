@@ -24,9 +24,9 @@ Cuba.define do
     res.write view("index")
   end
 
-  on "public", extension("xls") do |file|
+  on "tmp", extension("xls") do |file|
     res.headers["Content-Type"] = "application/vnd.ms-excel"
-    res.write(IO.read("./public/#{file}.xls"))
+    res.write(IO.read("./tmp/#{file}.xls"))
   end
 
   on "procesar" do

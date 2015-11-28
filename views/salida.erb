@@ -2,6 +2,6 @@
   <div class="panel-heading">Paso 2 de 2: informe procesado</div>
   <div class="panel-body">
 	<p>el archivo fue procesado</p>
-	<a href="http://<%= "#{env["HTTP_HOST"]}/#{archivo[1..-1]}" %>" class="btn btn-success">Bajar Excel</a>
+	<a href="http://<%= "#{env["HTTP_HOST"]}#{archivo[1..-1]}" %>" class="btn btn-success">Bajar Excel</a>
   </div>
 </div>

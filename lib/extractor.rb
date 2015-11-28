@@ -186,7 +186,7 @@ end
 def exportar_a_excel(lineas)
   require 'writeexcel'
   # Create a new Excel Workbook
-  path = "./public/OSECAC#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.xls"
+  path = "./tmp/OSECAC#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.xls"
   workbook = WriteExcel.new(path)
 
   # Add worksheet(s)
