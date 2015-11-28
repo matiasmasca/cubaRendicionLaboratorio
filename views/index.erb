@@ -1,8 +1,28 @@
-<h2>Bienvenido a CubaLab</h2>
-<p>Seleccione un archivo de rendici&oacute;n y presione exportar seg&uacute;n corresponda.</p>
-  <form action="/procesar" enctype="multipart/form-data" method="post" name="SubirArchivo">
-    <input type="file" id="file" name="files[]" multiple accept="text/txt">
-    <input name="submit" type="submit" value="Exportar OSECAC" />
-    <input name="submit" type="submit" value="Exportar UNNE" />
-  </form>
-</p>
+<!-- Index -->
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Paso 1 de 2</h3>
+  </div>
+  <div class="panel-body">
+    <p>Seleccione un archivo de rendici&oacute;n y presione exportar seg&uacute;n corresponda.</p>
+    <form action="/procesar" enctype="multipart/form-data" method="post" name="SubirArchivo">
+      <div class="form-group">
+        <label class="control-label" for="">Informe a procesar </label><br>
+        <div class="input-group-btn">
+          <input type="file" class="file-input-wrapper btn btn-default" accept="text/txt,application/vnd.oasis.opendocument.text" name="files[]" id="file"  multiple >
+        </div>
+      </div>
+      <br>
+      <div class="form-group">
+        <div class="actions">
+          <input name="submit" type="submit" value="Exportar OSECAC" class="btn btn-success" />
+          <input name="submit" type="submit" value="Exportar UNNE" class="btn btn-info" />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- /index -->

@@ -1,20 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
 <html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cuba Lab - Terciar.info</title>
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+  </head>
   <body>
-      <h1>HOLA MUNDO! Cuba Rocks!</h1>
+    <header>
+      <h1>Exportador de rendiciones</h1>
+    </header>
+    <main role="main">
       <%= content %>
-   </body>
-   <!-- Pie -->
-  <hr>
-  <footer class="bottom">
-    <div class="container hidden-xs">
-     <ul class="nav navbar-nav pull-left">
-       <li><a href="http://www.terciar.info" class="fa fa-rocket"> Powered by Terciar - <time datetime="2015-06-01">2015</time></a></li>
-     </ul>
-   </div>
+    </main>
+  <!-- Pie -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <hr>
+    <footer class="bottom">
+      <div class="container hidden-xs">
+       <ul class="nav navbar-nav pull-left">
+         <li><a href="<%= "/home"  %>">Inicio</a></li>
+         <li><a href="http://www.terciar.info" class="fa fa-rocket"> Powered by Terciar - <time datetime="2015-06-01">2015</time></a></li>
+       </ul>
+     </div>
 
-   <div class="container visible-xs">
-     <p class="navbar-text pull-left">Powered by Terciar - <time datetime="2015-06-01">2015</time></p>
-     <a href="http://www.terciar.info" class="navbar-btn btn-info btn pull-right">Cuba Lab</a>
-   </div>
-  </footer>
+     <div class="container visible-xs">
+       <p class="navbar-text pull-left">Powered by Terciar - <time datetime="2015-06-01">2015</time></p>
+       <a href="http://www.terciar.info" class="navbar-btn btn-info btn pull-right">Terciar.info</a>
+     </div>
+    </footer>
+   </body>
 </html>

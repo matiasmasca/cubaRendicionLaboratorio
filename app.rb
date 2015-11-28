@@ -21,7 +21,7 @@ Cuba.define do
   end
 
   on "home" do
-    res.write view("index", title: "Cuba Lab by Terciar")
+    res.write view("index")
   end
 
   on "public", extension("xls") do |file|
@@ -45,7 +45,7 @@ Cuba.define do
         servicios = e.servicios_pacientes(contenido)
         path = e.exportar_osecac(servicios)
         #binding.pry
-        res.write view("salida", title: "Cuba Lab by Terciar", archivo: path)
+        res.write view("salida", archivo: path)
       end
       #binding.pry
     end
