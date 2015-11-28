@@ -5,4 +5,12 @@ ruby '2.2.0' #Versión de Ruby.
 # Microframework web.
 gem 'cuba'
 
-gem "rake"
+# Templating..
+gem 'tilt'
+
+gem 'rake'
+
+ #Sacar esto en production
+gem 'pry'
+
+gem 'writeexcel'
