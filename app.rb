@@ -16,6 +16,7 @@ Cuba.plugin Cuba::Safe
 Cuba.plugin Cuba::Render
 
 Cuba.define do
+  res.headers["X-Frame-Options"] = "ALLOW-FROM http://terciar.info/"
   on root do
       res.redirect("/home")
   end
