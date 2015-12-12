@@ -55,7 +55,19 @@
 # -- Monto: 121 al 128 - Formato: 9.999,99
 
 # # Saltar 22 lineas desde Firma y Sello y seguir hasta encontrar otro paciente.
+def string_number_decimal_host(string)
+  decimal_point = (1.to_f.to_s)[1] #Para saber cual es el simbolo decimal en el host
+   #gsub(/[.,]/, '.' => '', ',' => '.')
+  if decimal_point == "."
+    #string.sub!(",", decimal_point)
+    string.gsub(/[.,]/, '.' => '', ',' => '.')
+  elsif decimal_point == ","
+    string.sub(".", decimal_point)
+  end
+end
+
 class Extractor
+  attr_accessor :contenido, :paciente, :servicios, :decimal_point
 
 def initialize
  @url_archivo = ""
@@ -77,7 +89,7 @@ def buscar_pacientes(lineas)
         # - Paciente inicia en: "0\s\s-03""
         paciente.store("inicia", index)
         # -- DNI: inicia en caracter 20 al 27.
-        paciente_dni = linea[18..26].strip
+        paciente_dni = linea[18..26].strip.to_i
         paciente.store("dni", "#{paciente_dni}")
         # -- Nro. Beneficiacio: 10 digitos
         paciente_nro_beneficiario = linea[27..37]
@@ -95,10 +107,24 @@ def buscar_pacientes(lineas)
         paciente_ficha = linea[95..98]
         paciente.store("ficha", "#{paciente_ficha}")
         # -- Salto de linea.
-        @pacientes << paciente
+        ###!!! Controlar que el DNI no este cargado en el vector.
+        ### paciente_dni
+        #puts "\e[0;34m\e[47m\ Paciente repetido: #{servicio_prestado["precio_unitario"]} \e[m"
+        
+        #{"inicia"=>14, "dni"=>"39186284", "nro_beneficiario"=>"", "full_mame"=>"FERNANDEZ MAIRA ELIZABETH", "origin"=>" 0 ", "nro_paciente"=>" 816433", "ficha"=>"178\r"}
+        #{"inicia"=>17, "dni"=>"54263999", "nro_beneficiario"=>"", "full_mame"=>"MORALES IGNACIO", "origin"=>" 0 ", "nro_paciente"=>" 816436", "ficha"=>"6206"}
+       repetido = false
+       @pacientes.each do |item| 
+          #puts "* #{item['dni']}"
+          #puts "vs. #{paciente_dni}"
+          repetido = true if item['dni'].to_i == paciente_dni.to_i
+       end
+        #puts "arra: #{project_array}"
+        @pacientes << paciente unless repetido
+
      end
   end
-  puts @pacientes
+  #puts @pacientes
 end
 
 def servicios_pacientes(lineas)
@@ -109,38 +135,49 @@ def servicios_pacientes(lineas)
       lineas.each_with_index do |linea, index|
         linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
         if linea.match(/0\s\s-0/)
-          paciente_actual = linea[19..26].to_i
+          paciente_actual = linea[19..26].strip.to_i #DNI paciente
           #puts "\e[0;34m\e[47m\ Cambio paciente. #{@pacientes[paciente_actual]} \e[m"
         end
 
         if linea.match(/\A(0?[1-9]|[12][0-9]|3[01])[\/](0?[1-9]|1[012])[\/](19|20)\d{2}/)
           servicios = Hash.new
-          servicios.store("paciente", "#{paciente_actual}")
-          fecha = linea[0..9] #DateTime.strptime(linea[0..9].to_s, '%d/%m/%Y')            
+          servicios.store("paciente", "#{paciente_actual}") #DNI
+          fecha = linea[0..9].strip #DateTime.strptime(linea[0..9].to_s, '%d/%m/%Y')            
           servicios.store("fecha", "#{fecha}")
           # -- Fecha: 0 al 10 DD/MM/AAAA
           # -- blnaco: 11
           # -- NOMENCLADOR: 12 al 17
-          nomenclador = linea[11..17].to_i
+          nomenclador = linea[11..17].strip.to_i
           servicios.store("nomenclador", "#{nomenclador}")
           # -- blanco: 18..20 
           # -- NOMBRE DE ANALISIS: 21..85
-          nombre_analisis = linea[20..83].strip!
+          nombre_analisis = linea[20..83].strip
           servicios.store("nombre_analisis", "#{nombre_analisis}") 
           # -- CANTIDAD: 86..89
-          cantidad  = linea[86..89].to_i
+          cantidad  = linea[86..89].strip.to_i
           servicios.store("cantidad", "#{cantidad}")
           # -- blanco: 90..106
           # -- PRECIO UNITARIO: 107..115 - Formato: 9.999,99
-          precio_unitario  = linea[105..115]
+          precio_unitario = linea[105..115]
+          if precio_unitario
+            precio_unitario.strip! 
+            precio_unitario = string_number_decimal_host(precio_unitario)
+          end
           precio_unitario.gsub!(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2').to_f if precio_unitario
           #puts "\e[0;34m\e[47m\ precio_unitario: #{precio_unitario} \e[m"
           servicios.store("precio_unitario", "#{precio_unitario}")
           # -- SUBTOTAL:117..128 - Formato: 9.999,99
-          
-          subtotal  = linea[118..128]
+          subtotal = linea[118..128]
+          if subtotal
+            subtotal.strip!
+            subtotal = string_number_decimal_host(subtotal)
+          end
+          #puts sprintf('%.2f', subtotal)
           servicios.store("subtotal", "#{subtotal}")
-          #puts servicios
+          #puts "Linea Servicios Pa: #{servicios}"
+          #Ajuste Precio Unitario: el informe trae mal calculado el precio unitario. Aveces le pone el valor del subtotal de la linea.
+          servicios["precio_unitario"] = servicios["subtotal"].to_f / servicios["cantidad"].to_i
+          #puts "Precio unitario: #{servicios["precio_unitario"]}"
           @servicios << servicios
         end
       end
@@ -165,7 +202,10 @@ end
 def exportar_osecac(servicios)
   lineas = []
   @pacientes.each do |paciente|
-    #puts paciente
+    #puts lineas.inspect
+    #break if lineas.include?(paciente["dni"])
+    #puts "\e[0;34m\e[47m\ paciente dni: #{paciente["dni"]} \e[m"
+
     #{"inicia"=>14, "dni"=>"40047880", "nro_beneficiario"=>"0000092594 ", "full_mame"=>"ACOSTA AUGUSTO", "origin"=>" 0 ", "nro_paciente"=>" 785288", "ficha"=>"\n"}
     servicios_cliente = servicios_paciente(paciente["dni"])
     
@@ -176,11 +216,11 @@ def exportar_osecac(servicios)
       linea << paciente["full_mame"]
       linea << servicio_prestado["fecha"]
       linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
-      linea << servicio_prestado["cantidad"]
+      linea << servicio_prestado["cantidad"].to_i
       linea << servicio_prestado["precio_unitario"]
       linea << servicio_prestado["subtotal"]
       lineas << linea
-      puts "\e[0;34m\e[47m\ linea: #{servicio_prestado["precio_unitario"]} \e[m"
+      #puts "\e[0;34m\e[47m\ linea: #{servicio_prestado["precio_unitario"]} \e[m"
     end
     #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"}
  end
@@ -191,6 +231,7 @@ def exportar_a_excel(lineas)
   require 'writeexcel'
   # Create a new Excel Workbook
   path = "./tmp/OSECAC#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.xls"
+  #path = "OSECAC#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.xls"
   workbook = WriteExcel.new(path)
 
   # Add worksheet(s)
@@ -232,8 +273,7 @@ def exportar_a_excel(lineas)
 
   i=5
   lineas.each do |linea|
-    puts "Linea:"
-    puts linea
+    #puts "Linea Excel: #{linea}"
     worksheet.write_row("A#{i}", linea, format_row)
     worksheet.write("G#{i}", linea[6] , format_currency)
     worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
@@ -249,11 +289,29 @@ end
 
 end
 
+# Probar Conversor de punto decimal:
+#numero = string_number_decimal_host("10.830,33")
+#puts "Numero: #{numero}"
+#numero = string_number_decimal_host("80,33")
+#puts "Numero: #{numero}"
+#numero = string_number_decimal_host("8033")
+#puts "Numero: #{numero}"
+
+#Funcionamiento manual.
+#para usar el extractor desde ruby, sin Cuba ni nada.
 #e = Extractor.new
 #e.leer_archivo("input-app 00080403.002_salida_sistema_nuevo")
 #leer_archivo("sistema_nuevo.009")
-#leer_archivo("00080903.101.txt")
 #leer_db_fox("UNNE.DBF")
+#puts "el punto decimal es: #{e.decimal_point}"
+#e.leer_archivo("00080403.016")
+#puts e.inspect
+#e.buscar_pacientes(e.contenido)
+
+#e.servicios_pacientes(e.contenido)
+
+#e.exportar_osecac(e.servicios)
+
 
 #e.buscar_pacientes(@contenido)
 
