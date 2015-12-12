@@ -72,12 +72,12 @@ end
 def buscar_pacientes(lineas)
   lineas.each_with_index do |linea, index|
     linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
-     if linea.match(/0\s\s-/)
+     if linea.match(/0\s\s-0/)
         paciente = Hash.new
-        # - Paciente inicia en: "0\s\s-""
+        # - Paciente inicia en: "0\s\s-03""
         paciente.store("inicia", index)
         # -- DNI: inicia en caracter 20 al 27.
-        paciente_dni = linea[19..26]
+        paciente_dni = linea[18..26].strip
         paciente.store("dni", "#{paciente_dni}")
         # -- Nro. Beneficiacio: 10 digitos
         paciente_nro_beneficiario = linea[27..37]
@@ -98,7 +98,7 @@ def buscar_pacientes(lineas)
         @pacientes << paciente
      end
   end
-  #puts @pacientes
+  puts @pacientes
 end
 
 def servicios_pacientes(lineas)
@@ -108,7 +108,7 @@ def servicios_pacientes(lineas)
 
       lineas.each_with_index do |linea, index|
         linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
-        if linea.match(/0\s\s-/)
+        if linea.match(/0\s\s-0/)
           paciente_actual = linea[19..26].to_i
           #puts "\e[0;34m\e[47m\ Cambio paciente. #{@pacientes[paciente_actual]} \e[m"
         end
@@ -132,10 +132,13 @@ def servicios_pacientes(lineas)
           servicios.store("cantidad", "#{cantidad}")
           # -- blanco: 90..106
           # -- PRECIO UNITARIO: 107..115 - Formato: 9.999,99
-          precio_unitario  = linea[105..115].to_f
+          precio_unitario  = linea[105..115]
+          precio_unitario.gsub!(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2').to_f if precio_unitario
+          #puts "\e[0;34m\e[47m\ precio_unitario: #{precio_unitario} \e[m"
           servicios.store("precio_unitario", "#{precio_unitario}")
           # -- SUBTOTAL:117..128 - Formato: 9.999,99
-          subtotal  = linea[118..128].to_f
+          
+          subtotal  = linea[118..128]
           servicios.store("subtotal", "#{subtotal}")
           #puts servicios
           @servicios << servicios
@@ -174,9 +177,10 @@ def exportar_osecac(servicios)
       linea << servicio_prestado["fecha"]
       linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
       linea << servicio_prestado["cantidad"]
-      linea << servicio_prestado["precio_unitario"].to_f
-      linea << servicio_prestado["subtotal"].to_f
+      linea << servicio_prestado["precio_unitario"]
+      linea << servicio_prestado["subtotal"]
       lineas << linea
+      puts "\e[0;34m\e[47m\ linea: #{servicio_prestado["precio_unitario"]} \e[m"
     end
     #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"}
  end
@@ -222,11 +226,17 @@ def exportar_a_excel(lineas)
   #Recorrer.
   format_row = workbook.add_format
   format_row.set_align('vjustify')
+  format_currency = workbook.add_format
+  format_currency.set_num_format('#,##0.00')
+  #worksheet.write(2,  0, 1234.56,   format03)    # 1,234.56
 
   i=5
   lineas.each do |linea|
+    puts "Linea:"
+    puts linea
     worksheet.write_row("A#{i}", linea, format_row)
-    worksheet.write("H#{i}", "=F#{i}*G#{i}", format_row)
+    worksheet.write("G#{i}", linea[6] , format_currency)
+    worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
     i += 1
   end
     worksheet.write("C#{i}", 'TOTAL', format_encabezado)
