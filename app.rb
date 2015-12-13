@@ -38,15 +38,29 @@ Cuba.define do
       archivo.store("tempfile", req.env["rack.tempfiles"][0].path)
       @file_data = req.env["rack.tempfiles"][0]
       #binding.pry
-      if boton == "Exportar OSECAC"
-        require './lib/extractor'
+      require './lib/extractor'
+      archivo_procesado_path = ""
+      if boton == "Exportar OSECAC"   
         e = Extractor.new
         contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
         e.buscar_pacientes(contenido)
         servicios = e.servicios_pacientes(contenido)
-        path = e.exportar_osecac(servicios)
+        archivo_procesado_path = e.exportar_osecac(servicios)
+      end
+
+      if boton == "Exportar ISSUNNE"
+        e = Extractor.new
+        contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
+        e.buscar_pacientes(contenido)
+        servicios = e.servicios_pacientes(contenido)
+        archivo_procesado_path = e.exportar_issunne(servicios)
         #binding.pry
-        res.write view("salida", archivo: path)
+      end
+
+      if archivo_procesado_path.include? "Error" #Si el path contiene la palabra
+          res.write view("error", mensaje: archivo_procesado_path)
+        else
+          res.write view("salida", archivo: archivo_procesado_path)
       end
       #binding.pry
     end
