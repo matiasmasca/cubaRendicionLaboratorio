@@ -49,6 +49,16 @@ Cuba.define do
         res.write view("salida", archivo: path)
       end
       #binding.pry
+      if boton == "Exportar ISSUNNE"
+        require './lib/extractor'
+        e = Extractor.new
+        contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
+        e.buscar_pacientes(contenido)
+        servicios = e.servicios_pacientes(contenido)
+        path = e.exportar_issune(servicios)
+        #binding.pry
+        res.write view("salida", archivo: path)
+      end
     end
 
   end

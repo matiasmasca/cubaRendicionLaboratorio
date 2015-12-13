@@ -287,7 +287,16 @@ def exportar_a_excel(lineas)
   path
 end
 
+def exportar_issunne(servicios) 
 end
+
+def crear_archivo_issunne()
+
+end
+
+end
+
+
 
 # Probar Conversor de punto decimal:
 #numero = string_number_decimal_host("10.830,33")
