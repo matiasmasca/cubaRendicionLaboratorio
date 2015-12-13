@@ -373,13 +373,6 @@ class Extractor
     path
   end
 
-def exportar_issunne(servicios) 
-end
-
-def crear_archivo_issunne()
-
-end
-
 end
 
 

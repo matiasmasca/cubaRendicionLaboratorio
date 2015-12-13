@@ -5,8 +5,8 @@ require "cuba/render"
 require "erb"
 require "pry"
 
-    require 'logger'  
-    require 'tempfile' 
+require 'logger'  
+require 'tempfile' 
 
 #require "better_errors"
 Cuba.use Rack::Session::Cookie, :secret => "__a_very_long_string__"
@@ -30,6 +30,11 @@ Cuba.define do
     res.write(IO.read("./tmp/#{file}.xls"))
   end
 
+  on "tmp", extension("txt") do |file|
+    res.headers["Content-Type"] = "text/plain"
+    res.write(IO.read("./tmp/#{file}.txt"))
+  end
+
   on "procesar" do
     on post do
       boton = req.params["submit"]
@@ -46,33 +51,24 @@ Cuba.define do
         e.buscar_pacientes(contenido)
         servicios = e.servicios_pacientes(contenido)
         archivo_procesado_path = e.exportar_osecac(servicios)
-      end
-
-      if boton == "Exportar ISSUNNE"
-        e = Extractor.new
-        contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
-        e.buscar_pacientes(contenido)
-        servicios = e.servicios_pacientes(contenido)
-        archivo_procesado_path = e.exportar_issunne(servicios)
+      elsif boton == "Exportar ISSUNNE"
+        u = Extractor.new
+        contenido = u.leer_archivo(req.env["rack.tempfiles"][0])
+        u.buscar_pacientes(contenido)
+        servicios = u.servicios_pacientes(contenido)
+        archivo_procesado_path = u.exportar_issunne(servicios)
         #binding.pry
       end
-
-      if archivo_procesado_path.include? "Error" #Si el path contiene la palabra
+      if archivo_procesado_path
+        if archivo_procesado_path.match(/error/i) #Si el path contiene la palabra
           res.write view("error", mensaje: archivo_procesado_path)
         else
           res.write view("salida", archivo: archivo_procesado_path)
+        end
+      else
+          res.write view("error", mensaje: "Algo salio mal con el archivo")
       end
       #binding.pry
-      if boton == "Exportar ISSUNNE"
-        require './lib/extractor'
-        e = Extractor.new
-        contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
-        e.buscar_pacientes(contenido)
-        servicios = e.servicios_pacientes(contenido)
-        path = e.exportar_issune(servicios)
-        #binding.pry
-        res.write view("salida", archivo: path)
-      end
     end
 
   end
