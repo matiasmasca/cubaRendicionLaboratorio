@@ -25,6 +25,10 @@ Cuba.define do
     res.write view("index")
   end
 
+  on "license" do
+    res.write view("license")
+  end
+
   on "tmp", extension("xls") do |file|
     res.headers["Content-Type"] = "application/vnd.ms-excel"
     res.write(IO.read("./tmp/#{file}.xls"))
