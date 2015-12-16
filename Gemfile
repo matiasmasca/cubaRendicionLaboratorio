@@ -10,7 +10,9 @@ gem 'tilt'
 
 gem 'rake'
 
+gem 'writeexcel'
+
+gem 'ocra'
+
  #Sacar esto en production
 gem 'pry'
-
-gem 'writeexcel'

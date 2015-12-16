@@ -329,6 +329,7 @@ class Extractor
         servicios_cliente = servicios_paciente(paciente["dni"])
         servicios_cliente.each do |servicio_prestado|
         #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"} 
+          next if servicio_prestado["nombre_analisis"] == "ETIQUETA" #salta este servicio que no se factura
           linea = ""
           linea << "0014" #IDCliente
           linea << "B" #TipoFactura
@@ -336,12 +337,12 @@ class Extractor
           linea << "#{@periodo}" #PeriodoFacturado
           linea << "00000014" #ProfesionalAsiste= 00000014 (8chr)
           linea << "1" #IdFuncion = 1 (1chr)
-          linea << "XXXXX#{paciente["ficha"]}XXXXXX" # !!! IDconsulta = 000005352012297 (15chr)
+          linea << "00000#{paciente["ficha"]}000000" # !!! IDconsulta = 000005352012297 (15chr)
           linea << paciente["dni"].rjust(8, '0').to_s # ! DniAfiliado = 06745788 (8chr)
           linea << paciente["full_mame"].ljust(60, ' ').to_s #! ApellidoNombre = Pepe Argento (60chr) - completar con blancos
           linea << "1" #TipoServicio= 1 (1chr)
           linea << servicio_prestado["fecha"].to_s.gsub(/[\/]/, '/' => '') # ! FechaPractica= 12112015 (8chr)
-          linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s # ! Practica = 661070 (6chr) (660475 = NBU hemograma) viene 475
+          linea << servicio_prestado["nomenclador"].rjust(6, '66000').to_s # ! Practica = 661070 (6chr) (660475 = NBU hemograma) viene 475
           linea << servicio_prestado["cantidad"].rjust(3, '0').to_s # ! Cantidad = 001 (3chr) - completar con ceros
           linea << "100" # ! Porcentaje = 100 (3chr)
           linea << servicio_prestado["precio_unitario"].to_s.sub(".","").rjust(15, '0').to_s # ! Importe = 000000000020535 (15chr) sin punto decimal. 205.35
@@ -374,8 +375,6 @@ class Extractor
   end
 
 end
-
-
 
 # Probar Conversor de punto decimal:
 #numero = string_number_decimal_host("10.830,33")
