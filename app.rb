@@ -4,8 +4,8 @@ require "cuba/safe"
 require "cuba/render"
 require "erb"
 
-require "pry"
-require 'logger'  
+#require "pry"
+#require 'logger'  
 require 'tempfile' 
 
 #require "better_errors"
