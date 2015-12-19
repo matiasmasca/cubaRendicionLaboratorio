@@ -8,7 +8,7 @@ gem 'cuba'
 # Templating..
 gem 'tilt'
 
-#gem 'rake'
+gem 'rake'
 
 gem 'writeexcel'
 

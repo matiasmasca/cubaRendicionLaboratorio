@@ -4,6 +4,7 @@ GEM
     cuba (3.4.0)
       rack
     rack (1.6.4)
+    rake (10.4.2)
     tilt (2.0.1)
     writeexcel (1.0.5)
 
@@ -12,5 +13,6 @@ PLATFORMS
 
 DEPENDENCIES
   cuba
+  rake
   tilt
   writeexcel
