@@ -55,19 +55,21 @@
 # -- Monto: 121 al 128 - Formato: 9.999,99
 
 # # Saltar 22 lineas desde Firma y Sello y seguir hasta encontrar otro paciente.
+
+#Converir cadena a decimal
 def string_number_decimal_host(string)
   decimal_point = (1.to_f.to_s)[1] #Para saber cual es el simbolo decimal en el host
    #gsub(/[.,]/, '.' => '', ',' => '.')
   if decimal_point == "."
     #string.sub!(",", decimal_point)
-    string.gsub(/[.,]/, '.' => '', ',' => '.')
+    string.gsub(/[.,]/, '.' => '', ',' => decimal_point)
   elsif decimal_point == ","
-    string.sub(".", decimal_point)
+    string.gsub(/[.,]/, ',' => '', '.' => decimal_point)
   end
 end
 
 class Extractor
-  attr_accessor :contenido, :paciente, :servicios, :decimal_point, :periodo, :institucion
+  attr_accessor :contenido, :paciente, :servicios, :decimal_point, :periodo, :institucion, :total_unne
 
   def initialize
    @url_archivo = ""
@@ -76,6 +78,7 @@ class Extractor
    @servicios = []
    @periodo = ""
    @institucion = ""
+   @total_unne = 0
   end
 
   def leer_archivo(tempfile)
@@ -94,7 +97,7 @@ class Extractor
           paciente_dni = linea[18..26].strip.to_i
           paciente.store("dni", "#{paciente_dni}")
           # -- Nro. Beneficiacio: 10 digitos
-          paciente_nro_beneficiario = linea[27..37]
+          paciente_nro_beneficiario = linea[27..37].strip.to_i
           paciente.store("nro_beneficiario", "#{paciente_nro_beneficiario}")
           # -- Apellido y nombre: arranca en 42 hasta 85
           paciente_full_mame = linea[41..83].strip!
@@ -337,7 +340,7 @@ class Extractor
           linea << "#{@periodo}" #PeriodoFacturado
           linea << "00000014" #ProfesionalAsiste= 00000014 (8chr)
           linea << "1" #IdFuncion = 1 (1chr)
-          linea << "00000#{paciente["ficha"]}000000" # !!! IDconsulta = 000005352012297 (15chr)
+          linea << paciente["nro_beneficiario"].rjust(15, '0').to_s # !!! IDconsulta = 000005352012297 (15chr)
           linea << paciente["dni"].rjust(8, '0').to_s # ! DniAfiliado = 06745788 (8chr)
           linea << paciente["full_mame"].ljust(60, ' ').to_s #! ApellidoNombre = Pepe Argento (60chr) - completar con blancos
           linea << "1" #TipoServicio= 1 (1chr)
@@ -355,6 +358,11 @@ class Extractor
           linea << "N"# Feriado = N (1chr)
           linea << "N"# Urgencias = N (1chr)
           lineas << linea
+          
+          #Esto es para mostrar un total en la vista, para que puedan comparar rapidamente si salio bien el calculo.
+          subtotal = servicio_prestado["subtotal"].to_f
+          #puts "\e[0;34m\e[47m\ subtotal: #{subtotal} y #{servicio_prestado["subtotal"]} \e[m"
+          @total_unne += subtotal
         end
       end
       crear_archivo_issunne(lineas)

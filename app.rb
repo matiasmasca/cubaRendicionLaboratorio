@@ -3,8 +3,8 @@ require "cuba"
 require "cuba/safe"
 require "cuba/render"
 require "erb"
-require "pry"
 
+require "pry"
 require 'logger'  
 require 'tempfile' 
 
@@ -17,6 +17,7 @@ Cuba.plugin Cuba::Render
 
 Cuba.define do
   res.headers["X-Frame-Options"] = "ALLOW-FROM http://terciar.info/"
+  @u = "" #Para llevar un valor a la vista.
   on root do
       res.redirect("/home")
   end
@@ -61,6 +62,8 @@ Cuba.define do
         u.buscar_pacientes(contenido)
         servicios = u.servicios_pacientes(contenido)
         archivo_procesado_path = u.exportar_issunne(servicios)
+        @u = u.total_unne.round(2) #Copia el contenido del objeto en la variable, para poder acceder al valor desde la vista.
+
         #binding.pry
       end
       if archivo_procesado_path

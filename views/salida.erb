@@ -3,5 +3,6 @@
   <div class="panel-body">
 	<p>el archivo fue procesado</p>
 	<a href="http://<%= "#{env["HTTP_HOST"]}#{archivo[1..-1]}" %>" download="<%= archivo[1..-1] %>" class="btn btn-success">Descargar archivo</a>
+	<%= "Total rendición: $ #{@u}" unless @u.is_a? String %>
   </div>
 </div>
