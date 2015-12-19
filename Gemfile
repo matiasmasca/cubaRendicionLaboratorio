@@ -12,7 +12,7 @@ gem 'rake'
 
 gem 'writeexcel'
 
-gem 'ocra'
+#gem 'ocra'
 
- #Sacar esto en production
-gem 'pry'
+#Sacar esto en production
+#gem 'pry'
