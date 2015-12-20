@@ -277,7 +277,8 @@ class Extractor
     format_row = workbook.add_format
     format_row.set_align('vjustify')
     format_currency = workbook.add_format
-    format_currency.set_num_format('#,##0.00')
+    #format_currency.set_num_format('#.##0,00')
+    format_currency.set_num_format(4) #Formato de moneda pre definido por excel
     #worksheet.write(2,  0, 1234.56,   format03)    # 1,234.56
 
     i=5
