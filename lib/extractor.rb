@@ -296,7 +296,6 @@ class Extractor
       worksheet.write("E#{i}", linea[4] , format_number)
       worksheet.write("F#{i}", linea[5] , format_number)
       worksheet.write("G#{i}", linea[6] , format_currency)
-      worksheet.write("H#{i}", 0 , format_currency)
       worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
       i += 1
     end
