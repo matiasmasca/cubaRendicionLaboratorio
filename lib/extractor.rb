@@ -287,15 +287,21 @@ class Extractor
 
     i=5
     lineas.each do |linea|
-      #puts "Linea Excel: #{linea}"
-      worksheet.write_row("A#{i}", linea, format_row)
+      #puts "Linea Excel: #{linea}
+      #worksheet.write_row("A#{i}", linea, format_row) #Linea entera.
+      worksheet.write("A#{i}", linea[0], format_row)
+      worksheet.write("B#{i}", linea[1], format_number)
+      worksheet.write("C#{i}", linea[2], format_row)
+      worksheet.write("D#{i}", linea[3], format_row)
+      worksheet.write("E#{i}", linea[4] , format_number)
       worksheet.write("F#{i}", linea[5] , format_number)
       worksheet.write("G#{i}", linea[6] , format_currency)
+      worksheet.write("H#{i}", 0 , format_currency)
       worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
       i += 1
     end
       worksheet.write("C#{i}", 'TOTAL', format_encabezado)
-      worksheet.write("H#{i}", "=SUM(H5:H#{i-1})", format_encabezado)
+      worksheet.write("H#{i}", "=SUM(H5:H#{i-1})", format_currency)
     
     # write to file
     workbook.close
