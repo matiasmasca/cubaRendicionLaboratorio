@@ -276,7 +276,11 @@ class Extractor
     #Recorrer.
     format_row = workbook.add_format
     format_row.set_align('vjustify')
+    format_number = workbook.add_format
+    format_number.set_align('right')
+    format_number.set_num_format(0) #Formato general de numero pre definido por excel
     format_currency = workbook.add_format
+    format_currency.set_align('right')
     #format_currency.set_num_format('#.##0,00')
     format_currency.set_num_format(4) #Formato de moneda pre definido por excel
     #worksheet.write(2,  0, 1234.56,   format03)    # 1,234.56
@@ -285,6 +289,7 @@ class Extractor
     lineas.each do |linea|
       #puts "Linea Excel: #{linea}"
       worksheet.write_row("A#{i}", linea, format_row)
+      worksheet.write("F#{i}", linea[5] , format_number)
       worksheet.write("G#{i}", linea[6] , format_currency)
       worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
       i += 1
