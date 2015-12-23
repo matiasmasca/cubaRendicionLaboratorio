@@ -82,7 +82,7 @@ class Extractor
   end
 
   def leer_archivo(tempfile)
-    @contenido = IO.readlines tempfile
+    @contenido = IO.readlines tempfile if File.exist? tempfile
     #puts @contenido
   end
 
