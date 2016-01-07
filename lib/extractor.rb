@@ -387,6 +387,9 @@ class Extractor
           @total_unne += subtotal
         end
       end
+      #Pedido especial: que ordende por fecha de atención.
+       lineas.sort_by! { |f| f[10] } #ordena por fecha, que es el 4 valor en el array.
+  
       crear_archivo_issunne(lineas)
   end
 
