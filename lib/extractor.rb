@@ -88,7 +88,8 @@ class Extractor
 
   def buscar_pacientes(lineas)
     lineas.each_with_index do |linea, index|
-      linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
+      #linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "") #Me hace perder las ñ
+      linea.encode!('UTF-8', 'WINDOWS-1252', :invalid => :replace, :replace => "")
        if linea.match(/0\s\s-0/)
           paciente = Hash.new
           # - Paciente inicia en: "0\s\s-03""
@@ -101,7 +102,9 @@ class Extractor
           paciente.store("nro_beneficiario", "#{paciente_nro_beneficiario}")
           # -- Apellido y nombre: arranca en 42 hasta 85
           paciente_full_mame = linea[41..83].strip!
-          paciente.store("full_mame", "#{paciente_full_mame}")
+          paciente.store("full_mame", "#{linea[41..83]}")
+          #puts "\e[0;34m\e[47m\ Paciente _full: #{paciente_full_mame} \e[m"
+          #puts "\e[0;34m\e[47m\ Paciente repetido: #{paciente["full_mame"]} \e[m"
           # -- Origen: 86 al 88
           paciente_origin = linea[84..86]
           paciente.store("origin", "#{paciente_origin}")
@@ -217,13 +220,15 @@ class Extractor
 
       #{"inicia"=>14, "dni"=>"40047880", "nro_beneficiario"=>"0000092594 ", "full_mame"=>"ACOSTA AUGUSTO", "origin"=>" 0 ", "nro_paciente"=>" 785288", "ficha"=>"\n"}
       servicios_cliente = servicios_paciente(paciente["dni"])
-      
+      #puts "\e[0;34m\e[47m\ Servicios: #{servicios_cliente.inspect} \e[m"
       servicios_cliente.each do |servicio_prestado| 
         linea = []
         linea << "DNI"
         linea << servicio_prestado["paciente"]
         linea << paciente["full_mame"]
         linea << servicio_prestado["fecha"]
+        #puts "\e[0;34m\e[47m\ Fecha servicio: #{servicio_prestado["fecha"]} \e[m"
+
         linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
         linea << servicio_prestado["cantidad"].to_i
         linea << servicio_prestado["precio_unitario"]
@@ -233,6 +238,12 @@ class Extractor
       end
       #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"}
    end
+   
+   #Pedido especial: que ordende por fecha de atención.
+   lineas.sort_by! { |h| h[3] } #ordena por fecha, que es el 4 valor en el array.
+   #lineas.each do |h| 
+   # puts "\e[0;34m\e[47m\ h: #{h[2]} \e[m"
+   #end
    exportar_a_excel(lineas)
   end
 
