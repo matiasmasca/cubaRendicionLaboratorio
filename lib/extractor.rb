@@ -137,7 +137,7 @@ class Extractor
        end
        if linea.match(/^Institucion/)
         #Periodo: busca la linea del informe y lo toma de allí
-        institucion = linea[14..30].strip
+        institucion = linea[14..46].strip
         @institucion = institucion.gsub(/[.]/, '.' => '')
        end
 
@@ -209,9 +209,11 @@ class Extractor
   end
 
   def exportar_osecac(servicios)
-    if @institucion != "OSECAC" 
-      return "Error: El archivo no corresponde a OSECAC"
-    end
+    # Pidieron que se elimine este control de institucion.
+    #unless @institucion == "OSECAC" || @institucion == "OSECAC  BONO SOLIDARIO"
+    #  puts "\e[0;34m\e[47m\ Institucion: #{@institucion}. \e[m"
+    #  return "Error: El archivo no corresponde a OSECAC"
+    #end
     lineas = []
     @pacientes.each do |paciente|
       #puts lineas.inspect
@@ -228,8 +230,8 @@ class Extractor
         linea << paciente["full_mame"]
         linea << servicio_prestado["fecha"]
         #puts "\e[0;34m\e[47m\ Fecha servicio: #{servicio_prestado["fecha"]} \e[m"
-
         linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
+        linea << servicio_prestado["nombre_analisis"]
         linea << servicio_prestado["cantidad"].to_i
         linea << servicio_prestado["precio_unitario"]
         linea << servicio_prestado["subtotal"]
@@ -273,16 +275,18 @@ class Extractor
     worksheet.write('C4', 'APELLIDO Y NOMBRE', format_encabezado)
     worksheet.write('D4', 'FECHA', format_encabezado)
     worksheet.write('E4', 'CODIGO', format_encabezado)
-    worksheet.write('F4', 'CANT.', format_encabezado)
-    worksheet.write('G4', 'UNITARIO', format_encabezado)
-    worksheet.write('H4', 'PRECIO', format_encabezado)
+    worksheet.write('F4', 'DESCRIPCIÓN', format_encabezado)
+    worksheet.write('G4', 'CANT.', format_encabezado)
+    worksheet.write('H4', 'UNITARIO', format_encabezado)
+    worksheet.write('I4', 'PRECIO', format_encabezado)
     worksheet.set_column('B:B', 8)
     worksheet.set_column('C:C', 30) # Columns C width set to 30
     worksheet.set_column('D:D', 10)
     worksheet.set_column('E:E', 6)
-    worksheet.set_column('F:F', 4)
-    worksheet.set_column('G:G', 9)
+    worksheet.set_column('F:F', 30)
+    worksheet.set_column('G:G', 4)
     worksheet.set_column('H:H', 9)
+    worksheet.set_column('I:I', 9)
     
     #Recorrer.
     format_row = workbook.add_format
@@ -305,13 +309,14 @@ class Extractor
       worksheet.write("C#{i}", linea[2], format_row)
       worksheet.write("D#{i}", linea[3], format_row)
       worksheet.write("E#{i}", linea[4] , format_number)
-      worksheet.write("F#{i}", linea[5] , format_number)
-      worksheet.write("G#{i}", linea[6] , format_currency)
-      worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
+      worksheet.write("F#{i}", linea[5] , format_row)
+      worksheet.write("G#{i}", linea[6] , format_number)
+      worksheet.write("H#{i}", linea[7] , format_currency)
+      worksheet.write("I#{i}", "=G#{i}*H#{i}", format_currency)
       i += 1
     end
       worksheet.write("C#{i}", 'TOTAL', format_encabezado)
-      worksheet.write("H#{i}", "=SUM(H5:H#{i-1})", format_currency)
+      worksheet.write("I#{i}", "=SUM(I5:I#{i-1})", format_currency)
     
     # write to file
     workbook.close
