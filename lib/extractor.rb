@@ -384,6 +384,7 @@ class Extractor
           linea << "N"# Nocturno = N (1chr)
           linea << "N"# Feriado = N (1chr)
           linea << "N"# Urgencias = N (1chr)
+          linea << "\r\n"
           lineas << linea
           
           #Esto es para mostrar un total en la vista, para que puedan comparar rapidamente si salio bien el calculo.
@@ -403,7 +404,7 @@ class Extractor
     path = "./tmp/UNNE#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.txt"
     #DEV:# path = "UNNE#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.txt"
     #//Crear archivo
-    File.open(path, 'w') do |salida|
+    File.open(path, 'wb:Windows-1252') do |salida|
       # '\n' es el retorno de carro
       lineas.each do |linea|
         salida.puts linea
