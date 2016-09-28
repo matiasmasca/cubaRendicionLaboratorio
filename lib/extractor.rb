@@ -90,7 +90,7 @@ class Extractor
     lineas.each_with_index do |linea, index|
       #linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "") #Me hace perder las ñ
       linea.encode!('UTF-8', 'WINDOWS-1252', :invalid => :replace, :replace => "")
-       if linea.match(/0\s\s-0/)
+      if linea.match(/0\s\s-0/) 
           paciente = Hash.new
           # - Paciente inicia en: "0\s\s-03""
           paciente.store("inicia", index)
@@ -130,6 +130,31 @@ class Extractor
           #puts "arra: #{project_array}"
           @pacientes << paciente unless repetido
        end
+
+       ##Para evitar el error cuando ponen un espacio de menos.
+       if linea.match(/0\s-0/) 
+          paciente = Hash.new
+          paciente.store("inicia", index)
+          paciente_dni = linea[17..25].strip.to_i
+          paciente.store("dni", "#{paciente_dni}")
+          paciente_nro_beneficiario = linea[26..37].strip.to_i
+          paciente.store("nro_beneficiario", "#{paciente_nro_beneficiario}")
+          paciente_full_mame = linea[40..82].strip!
+          paciente.store("full_mame", "#{linea[40..82]}")
+          paciente_origin = linea[83..85]
+          paciente.store("origin", "#{paciente_origin}")
+          paciente_nro_paciente = linea[86..92]
+          paciente.store("nro_paciente", "#{paciente_nro_paciente}")
+          paciente_ficha = linea[94..97]
+          paciente.store("ficha", "#{paciente_ficha}")
+          repetido = false
+          @pacientes.each do |item| 
+            repetido = true if item['dni'].to_i == paciente_dni.to_i
+          end
+          @pacientes << paciente unless repetido
+          #puts "\e[0;34m\e[47m\ Aparecio el Huevo: #{paciente} \e[m"
+       end
+
        if linea.match(/^Periodo/)
         #Periodo: busca la linea del informe y lo toma de allí
         periodo = linea[13..30].strip
@@ -143,6 +168,7 @@ class Extractor
 
     end
     #puts @pacientes
+    #puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes} \e[m"
   end
 
   def servicios_pacientes(lineas)
@@ -154,7 +180,10 @@ class Extractor
           linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
           if linea.match(/0\s\s-0/)
             paciente_actual = linea[19..26].strip.to_i #DNI paciente
-            #puts "\e[0;34m\e[47m\ Cambio paciente. #{@pacientes[paciente_actual]} \e[m"
+            #puts "\e[0;34m\e[47m\ Cambio paciente. #{paciente_actual} \e[m"
+          elsif linea.match(/0\s-0/)
+            paciente_actual = linea[18..25].strip.to_i #DNI paciente
+            puts "\e[0;34m\e[47m\ Aparecio!! paciente. #{paciente_actual} \e[m"
           end
 
           if linea.match(/\A(0?[1-9]|[12][0-9]|3[01])[\/](0?[1-9]|1[012])[\/](19|20)\d{2}/)
@@ -205,7 +234,7 @@ class Extractor
 
   def servicios_paciente(dni)
     #puts "\e[0;34m\e[47m\ Paciente. #{dni} \e[m"
-    servicios_cliente = @servicios.select { |item|  item["paciente"] == dni  } 
+    servicios_cliente = @servicios.select { |item| item["paciente"] == dni  } 
   end
 
   def exportar_osecac(servicios)
@@ -231,7 +260,7 @@ class Extractor
         linea << servicio_prestado["fecha"]
         #puts "\e[0;34m\e[47m\ Fecha servicio: #{servicio_prestado["fecha"]} \e[m"
         linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
-        linea << servicio_prestado["nombre_analisis"]
+        linea << servicio_prestado["nombre_analisis"].upcase
         linea << servicio_prestado["cantidad"].to_i
         linea << servicio_prestado["precio_unitario"]
         linea << servicio_prestado["subtotal"]
@@ -359,7 +388,7 @@ class Extractor
         servicios_cliente = servicios_paciente(paciente["dni"])
         servicios_cliente.each do |servicio_prestado|
         #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"} 
-          next if servicio_prestado["nombre_analisis"] == "ETIQUETA" #salta este servicio que no se factura
+          next if servicio_prestado["nombre_analisis"].upcase == "ETIQUETA" #salta este servicio que no se factura
           linea = ""
           linea << "0014" #IDCliente
           linea << "B" #TipoFactura
