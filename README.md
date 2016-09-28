@@ -10,6 +10,11 @@ Toda contribución (sugerencias de cambio), consejo, critica constructiva, consu
   - Para la Integración Continua: **Travis-ci**
   - Para el deploy, el servicio de hosting: **Heroku**
 
+**Nostas**.
+  - Para hacer correr la aplicación: rackup config.ru
+  - y luego ingresar a: http://0.0.0.0:9292
+  - Tiene que tener una carpeta "tmp", que es lo que usa en el servidor de producción.
+
 **Servicios Externos.**
 -----------------------
 [![Build Status](https://travis-ci.org/matiasmasca/cubaRendicionLaboratorio.svg)](https://travis-ci.org/matiasmasca/cubaRendicionLaboratorio)

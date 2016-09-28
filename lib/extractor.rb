@@ -90,7 +90,7 @@ class Extractor
     lineas.each_with_index do |linea, index|
       #linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "") #Me hace perder las ñ
       linea.encode!('UTF-8', 'WINDOWS-1252', :invalid => :replace, :replace => "")
-       if linea.match(/0\s\s-0/)
+      if linea.match(/0\s\s-0/) 
           paciente = Hash.new
           # - Paciente inicia en: "0\s\s-03""
           paciente.store("inicia", index)
@@ -130,6 +130,31 @@ class Extractor
           #puts "arra: #{project_array}"
           @pacientes << paciente unless repetido
        end
+
+       ##Para evitar el error cuando ponen un espacio de menos.
+       if linea.match(/0\s-0/) 
+          paciente = Hash.new
+          paciente.store("inicia", index)
+          paciente_dni = linea[17..25].strip.to_i
+          paciente.store("dni", "#{paciente_dni}")
+          paciente_nro_beneficiario = linea[26..37].strip.to_i
+          paciente.store("nro_beneficiario", "#{paciente_nro_beneficiario}")
+          paciente_full_mame = linea[40..82].strip!
+          paciente.store("full_mame", "#{linea[40..82]}")
+          paciente_origin = linea[83..85]
+          paciente.store("origin", "#{paciente_origin}")
+          paciente_nro_paciente = linea[86..92]
+          paciente.store("nro_paciente", "#{paciente_nro_paciente}")
+          paciente_ficha = linea[94..97]
+          paciente.store("ficha", "#{paciente_ficha}")
+          repetido = false
+          @pacientes.each do |item| 
+            repetido = true if item['dni'].to_i == paciente_dni.to_i
+          end
+          @pacientes << paciente unless repetido
+          #puts "\e[0;34m\e[47m\ Aparecio el Huevo: #{paciente} \e[m"
+       end
+
        if linea.match(/^Periodo/)
         #Periodo: busca la linea del informe y lo toma de allí
         periodo = linea[13..30].strip
@@ -137,12 +162,13 @@ class Extractor
        end
        if linea.match(/^Institucion/)
         #Periodo: busca la linea del informe y lo toma de allí
-        institucion = linea[14..30].strip
+        institucion = linea[14..46].strip
         @institucion = institucion.gsub(/[.]/, '.' => '')
        end
 
     end
     #puts @pacientes
+    #puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes} \e[m"
   end
 
   def servicios_pacientes(lineas)
@@ -154,7 +180,10 @@ class Extractor
           linea.encode!('UTF-8', :undef => :replace, :invalid => :replace, :replace => "")
           if linea.match(/0\s\s-0/)
             paciente_actual = linea[19..26].strip.to_i #DNI paciente
-            #puts "\e[0;34m\e[47m\ Cambio paciente. #{@pacientes[paciente_actual]} \e[m"
+            #puts "\e[0;34m\e[47m\ Cambio paciente. #{paciente_actual} \e[m"
+          elsif linea.match(/0\s-0/)
+            paciente_actual = linea[18..25].strip.to_i #DNI paciente
+            puts "\e[0;34m\e[47m\ Aparecio!! paciente. #{paciente_actual} \e[m"
           end
 
           if linea.match(/\A(0?[1-9]|[12][0-9]|3[01])[\/](0?[1-9]|1[012])[\/](19|20)\d{2}/)
@@ -205,13 +234,15 @@ class Extractor
 
   def servicios_paciente(dni)
     #puts "\e[0;34m\e[47m\ Paciente. #{dni} \e[m"
-    servicios_cliente = @servicios.select { |item|  item["paciente"] == dni  } 
+    servicios_cliente = @servicios.select { |item| item["paciente"] == dni  } 
   end
 
   def exportar_osecac(servicios)
-    if @institucion != "OSECAC" 
-      return "Error: El archivo no corresponde a OSECAC"
-    end
+    # Pidieron que se elimine este control de institucion.
+    #unless @institucion == "OSECAC" || @institucion == "OSECAC  BONO SOLIDARIO"
+    #  puts "\e[0;34m\e[47m\ Institucion: #{@institucion}. \e[m"
+    #  return "Error: El archivo no corresponde a OSECAC"
+    #end
     lineas = []
     @pacientes.each do |paciente|
       #puts lineas.inspect
@@ -228,8 +259,8 @@ class Extractor
         linea << paciente["full_mame"]
         linea << servicio_prestado["fecha"]
         #puts "\e[0;34m\e[47m\ Fecha servicio: #{servicio_prestado["fecha"]} \e[m"
-
         linea << servicio_prestado["nomenclador"].rjust(6, '0').to_s
+        linea << servicio_prestado["nombre_analisis"].upcase
         linea << servicio_prestado["cantidad"].to_i
         linea << servicio_prestado["precio_unitario"]
         linea << servicio_prestado["subtotal"]
@@ -273,16 +304,18 @@ class Extractor
     worksheet.write('C4', 'APELLIDO Y NOMBRE', format_encabezado)
     worksheet.write('D4', 'FECHA', format_encabezado)
     worksheet.write('E4', 'CODIGO', format_encabezado)
-    worksheet.write('F4', 'CANT.', format_encabezado)
-    worksheet.write('G4', 'UNITARIO', format_encabezado)
-    worksheet.write('H4', 'PRECIO', format_encabezado)
+    worksheet.write('F4', 'DESCRIPCIÓN', format_encabezado)
+    worksheet.write('G4', 'CANT.', format_encabezado)
+    worksheet.write('H4', 'UNITARIO', format_encabezado)
+    worksheet.write('I4', 'PRECIO', format_encabezado)
     worksheet.set_column('B:B', 8)
     worksheet.set_column('C:C', 30) # Columns C width set to 30
     worksheet.set_column('D:D', 10)
     worksheet.set_column('E:E', 6)
-    worksheet.set_column('F:F', 4)
-    worksheet.set_column('G:G', 9)
+    worksheet.set_column('F:F', 30)
+    worksheet.set_column('G:G', 4)
     worksheet.set_column('H:H', 9)
+    worksheet.set_column('I:I', 9)
     
     #Recorrer.
     format_row = workbook.add_format
@@ -305,13 +338,14 @@ class Extractor
       worksheet.write("C#{i}", linea[2], format_row)
       worksheet.write("D#{i}", linea[3], format_row)
       worksheet.write("E#{i}", linea[4] , format_number)
-      worksheet.write("F#{i}", linea[5] , format_number)
-      worksheet.write("G#{i}", linea[6] , format_currency)
-      worksheet.write("H#{i}", "=F#{i}*G#{i}", format_currency)
+      worksheet.write("F#{i}", linea[5] , format_row)
+      worksheet.write("G#{i}", linea[6] , format_number)
+      worksheet.write("H#{i}", linea[7] , format_currency)
+      worksheet.write("I#{i}", "=G#{i}*H#{i}", format_currency)
       i += 1
     end
       worksheet.write("C#{i}", 'TOTAL', format_encabezado)
-      worksheet.write("H#{i}", "=SUM(H5:H#{i-1})", format_currency)
+      worksheet.write("I#{i}", "=SUM(I5:I#{i-1})", format_currency)
     
     # write to file
     workbook.close
@@ -354,7 +388,7 @@ class Extractor
         servicios_cliente = servicios_paciente(paciente["dni"])
         servicios_cliente.each do |servicio_prestado|
         #{"paciente"=>"38716191", "fecha"=>"04/03/2015", "nomenclador"=>"1", "nombre_analisis"=>"ACTO BIOQUIMICO", "cantidad"=>"1", "precio_unitario"=>"31.0", "subtotal"=>"31.0"} 
-          next if servicio_prestado["nombre_analisis"] == "ETIQUETA" #salta este servicio que no se factura
+          next if servicio_prestado["nombre_analisis"].upcase == "ETIQUETA" #salta este servicio que no se factura
           linea = ""
           linea << "0014" #IDCliente
           linea << "B" #TipoFactura
@@ -379,6 +413,7 @@ class Extractor
           linea << "N"# Nocturno = N (1chr)
           linea << "N"# Feriado = N (1chr)
           linea << "N"# Urgencias = N (1chr)
+          linea << "\r\n"
           lineas << linea
           
           #Esto es para mostrar un total en la vista, para que puedan comparar rapidamente si salio bien el calculo.
@@ -398,7 +433,7 @@ class Extractor
     path = "./tmp/UNNE#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.txt"
     #DEV:# path = "UNNE#{Time.now.day}_#{Time.now.month}_#{Time.now.year}_terciar.txt"
     #//Crear archivo
-    File.open(path, 'w') do |salida|
+    File.open(path, 'wb:Windows-1252') do |salida|
       # '\n' es el retorno de carro
       lineas.each do |linea|
         salida.puts linea

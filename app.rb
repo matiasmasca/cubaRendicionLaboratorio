@@ -50,7 +50,7 @@ Cuba.define do
       #binding.pry
       require './lib/extractor'
       archivo_procesado_path = ""
-      if boton == "Exportar OSECAC"   
+      if boton == "Exportar a EXCEL"   
         e = Extractor.new
         contenido = e.leer_archivo(req.env["rack.tempfiles"][0])
         e.buscar_pacientes(contenido)
