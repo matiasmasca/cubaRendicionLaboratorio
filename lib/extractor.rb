@@ -168,7 +168,7 @@ class Extractor
 
     end
     #puts @pacientes
-    #puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes} \e[m"
+    puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes.count} \e[m"
   end
 
   def servicios_pacientes(lineas)
@@ -183,7 +183,7 @@ class Extractor
             #puts "\e[0;34m\e[47m\ Cambio paciente. #{paciente_actual} \e[m"
           elsif linea.match(/0\s-0/)
             paciente_actual = linea[18..25].strip.to_i #DNI paciente
-            puts "\e[0;34m\e[47m\ Aparecio!! paciente. #{paciente_actual} \e[m"
+            #puts "\e[0;34m\e[47m\ Aparecio!! paciente. #{paciente_actual} \e[m"
           end
 
           if linea.match(/\A(0?[1-9]|[12][0-9]|3[01])[\/](0?[1-9]|1[012])[\/](19|20)\d{2}/)
@@ -393,9 +393,9 @@ class Extractor
           linea << "0014" #IDCliente
           linea << "B" #TipoFactura
           linea << "000000000000" # NumeroFactura= 000000000000
-          linea << "#{@periodo}" #PeriodoFacturado
+          linea << "#{@periodo}".rjust(6, '0') #PeriodoFacturado
           linea << "00000014" #ProfesionalAsiste= 00000014 (8chr)
-          linea << "1" #IdFuncion = 1 (1chr)
+          linea << "001" #IdFuncion = 1 (1chr)
           linea << paciente["nro_beneficiario"].rjust(15, '0').to_s # !!! IDconsulta = 000005352012297 (15chr)
           linea << paciente["dni"].rjust(8, '0').to_s # ! DniAfiliado = 06745788 (8chr)
           linea << paciente["full_mame"].ljust(60, ' ').to_s #! ApellidoNombre = Pepe Argento (60chr) - completar con blancos
@@ -471,14 +471,3 @@ end
 #e.buscar_pacientes(@contenido)
 #e.servicios_pacientes(@contenido)
 #e.exportar_osecac(@servicios)
-
-# Dead CODE:
-# def leer_db_fox(archivo)
-#   #https://github.com/infused/dbf
-#   require 'dbf'
-#   database = DBF::Table.new(archivo)
-#   database.each do |record|
-#     #puts record
-#   end
-#   #puts(database.schema)
-# end
