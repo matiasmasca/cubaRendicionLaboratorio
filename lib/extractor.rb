@@ -168,7 +168,7 @@ class Extractor
 
     end
     #puts @pacientes
-    puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes.count} \e[m"
+    #puts "\e[0;34m\e[47m\ TODOS los Pacientes: #{@pacientes.count} \e[m"
   end
 
   def servicios_pacientes(lineas)
@@ -400,7 +400,7 @@ class Extractor
           linea << paciente["dni"].rjust(8, '0').to_s # ! DniAfiliado = 06745788 (8chr)
           linea << paciente["full_mame"].ljust(60, ' ').to_s #! ApellidoNombre = Pepe Argento (60chr) - completar con blancos
           linea << "1" #TipoServicio= 1 (1chr)
-          linea << servicio_prestado["fecha"].to_s.gsub(/[\/]/, '/' => '') # ! FechaPractica= 12112015 (8chr)
+          linea << servicio_prestado["fecha"].rjust(8, '0').to_s.gsub(/[\/]/, '/' => '') # ! FechaPractica= 12112015 (8chr)
           linea << servicio_prestado["nomenclador"].rjust(6, '66000').to_s # ! Practica = 661070 (6chr) (660475 = NBU hemograma) viene 475
           linea << servicio_prestado["cantidad"].rjust(3, '0').to_s # ! Cantidad = 001 (3chr) - completar con ceros
           linea << "100" # ! Porcentaje = 100 (3chr)
